@@ -47,7 +47,7 @@ static int usage() {
   fprintf(stderr, "USAGE: scibf [options]\n");
   fprintf(stderr, "-h, --help\t\tShow this help message.\n");
   fprintf(stderr, "-D, --debug\t\tIncrease debug level.\n");
-  fprintf(stderr, "\t\t\tYou can also directly set a certain debug level with --debug=5\n");
+  fprintf(stderr, "\t\t\tYou can also directly set a certain debug level with -D5\n");
   fprintf(stderr, "-f, --foreground\tDon't fork into the background (-D won't fork either).\n");
   fprintf(stderr, "-C, --config\t\tUse this config file.\n");
   fprintf(stderr, "-T, --test-config\tSimply test the config file for any errors.\n");
@@ -64,9 +64,11 @@ int main(int argc, char** argv) {
     case 'D':
       if (optarg) {
         errno = 0;
-        int tmp = atoi(optarg);
+        long tmp = strtol(optarg, NULL, 10);
         if (errno == 0 && tmp < 256)
-          debug = tmp;
+          debug = (unsigned char) tmp;
+        else
+          fprintf(stderr, "%ld is an invalid debug level.\n", tmp);
       } else
         debug++;
       break;

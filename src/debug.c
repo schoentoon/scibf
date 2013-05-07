@@ -29,7 +29,7 @@ unsigned char debug = 0;
 void __internal_debug(unsigned char level, const char* format, ...) {
   if (debug == 0)
     return;
-  else if (debug <= level) {
+  else if (debug >= level) {
     struct timeval tv;
     time_t nowtime;
     struct tm *nowtm;

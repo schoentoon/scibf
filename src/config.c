@@ -17,6 +17,8 @@
 
 #include "config.h"
 
+#include "debug.h"
+
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>
@@ -46,6 +48,7 @@ int parse_config(char* config_file) {
     char key[BUFSIZ];
     char value[BUFSIZ];
     if (sscanf(line_buffer, "%[a-z_] = %[^\t\n]", key, value) == 2) {
+      DEBUG(255, "key: '%s', value: '%s'", key, value);
       if (strcasecmp(key, "name") == 0) {
         current_server = getServer(value);
         if (!current_server->unique_name) {
@@ -79,6 +82,9 @@ int parse_config(char* config_file) {
         current_server->nickname = malloc(strlen(value) + 1);
         strcpy(current_server->nickname, value);
       }
+    } else {
+      fprintf(stderr, "Parsing error at line %d.\n", line_count);
+      return 0;
     }
   };
   fclose(f);
@@ -91,6 +97,7 @@ struct server* getServer(char* name) {
   struct server* node = global_config->servers;
   if (!node) {
     global_config->servers = malloc(sizeof(struct server));
+    memset(global_config->servers, 0, sizeof(struct server));
     return global_config->servers;
   }
   for (;;) {
@@ -101,5 +108,6 @@ struct server* getServer(char* name) {
     node = node->next; /* the last one to append a new one. */
   }
   node->next = malloc(sizeof(struct server));
+  memset(node->next, 0, sizeof(struct server));
   return node->next;
 };
