@@ -70,7 +70,13 @@ int main(int argc, char** argv) {
         return 1;
       break;
     case 'T':
-      return parse_config(optarg);
+      if (parse_config(optarg)) {
+        fprintf(stderr, "Config file seems to be valid.\n");
+        return 0;
+      } else {
+        fprintf(stderr, "Your config seems to be invalid.\n");
+        return 1;
+      }
     }
   }
   if (foreground || debug || (fork() == 0)) {
