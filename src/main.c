@@ -19,6 +19,7 @@
 #include "config.h"
 
 #include <stdio.h>
+#include <errno.h>
 #include <stdlib.h>
 #include <getopt.h>
 #include <signal.h>
@@ -28,7 +29,7 @@
 
 static const struct option g_LongOpts[] = {
   { "help",       no_argument,       0, 'h' },
-  { "debug",      no_argument,       0, 'D' },
+  { "debug",      optional_argument, 0, 'D' },
   { "foreground", no_argument,       0, 'f' },
   { "config",     required_argument, 0, 'C' },
   { "test-config",required_argument, 0, 'T' },
@@ -44,10 +45,11 @@ void onSignal(int signal) {
 
 static int usage() {
   fprintf(stderr, "USAGE: scibf [options]\n");
-  fprintf(stderr, "-h, --help\tShow this help message.\n");
-  fprintf(stderr, "-D, --debug\tIncrease debug level.\n");
+  fprintf(stderr, "-h, --help\t\tShow this help message.\n");
+  fprintf(stderr, "-D, --debug\t\tIncrease debug level.\n");
+  fprintf(stderr, "\t\t\tYou can also directly set a certain debug level with --debug=5\n");
   fprintf(stderr, "-f, --foreground\tDon't fork into the background (-D won't fork either).\n");
-  fprintf(stderr, "-C, --config\tUse this config file.\n");
+  fprintf(stderr, "-C, --config\t\tUse this config file.\n");
   fprintf(stderr, "-T, --test-config\tSimply test the config file for any errors.\n");
   return 0;
 };
@@ -55,12 +57,18 @@ static int usage() {
 int main(int argc, char** argv) {
   int arg, optindex;
   unsigned char foreground = 0;
-  while ((arg = getopt_long(argc, argv, "hDfC:T:", g_LongOpts, &optindex)) != -1) {
+  while ((arg = getopt_long(argc, argv, "hD::fC:T:", g_LongOpts, &optindex)) != -1) {
     switch (arg) {
     case 'h':
       return usage();
     case 'D':
-      debug++;
+      if (optarg) {
+        errno = 0;
+        int tmp = atoi(optarg);
+        if (errno == 0 && tmp < 256)
+          debug = tmp;
+      } else
+        debug++;
       break;
     case 'f':
       foreground = 1;
