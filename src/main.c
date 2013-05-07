@@ -16,6 +16,7 @@
  */
 
 #include "debug.h"
+#include "config.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -29,6 +30,8 @@ static const struct option g_LongOpts[] = {
   { "help",       no_argument,       0, 'h' },
   { "debug",      no_argument,       0, 'D' },
   { "foreground", no_argument,       0, 'f' },
+  { "config",     required_argument, 0, 'C' },
+  { "test-config",required_argument, 0, 'T' },
   { 0, 0, 0, 0 }
 };
 
@@ -44,13 +47,15 @@ static int usage() {
   fprintf(stderr, "-h, --help\tShow this help message.\n");
   fprintf(stderr, "-D, --debug\tIncrease debug level.\n");
   fprintf(stderr, "-f, --foreground\tDon't fork into the background (-D won't fork either).\n");
+  fprintf(stderr, "-C, --config\tUse this config file.\n");
+  fprintf(stderr, "-T, --test-config\tSimply test the config file for any errors.\n");
   return 0;
 };
 
 int main(int argc, char** argv) {
   int arg, optindex;
   unsigned char foreground = 0;
-  while ((arg = getopt_long(argc, argv, "hDf", g_LongOpts, &optindex)) != -1) {
+  while ((arg = getopt_long(argc, argv, "hDfC:T:", g_LongOpts, &optindex)) != -1) {
     switch (arg) {
     case 'h':
       return usage();
@@ -60,6 +65,12 @@ int main(int argc, char** argv) {
     case 'f':
       foreground = 1;
       break;
+    case 'C':
+      if (parse_config(optarg) == 0)
+        return 1;
+      break;
+    case 'T':
+      return parse_config(optarg);
     }
   }
   if (foreground || debug || (fork() == 0)) {

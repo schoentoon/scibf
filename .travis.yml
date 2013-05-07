@@ -8,3 +8,5 @@ before_install:
 script:
   - make clean
   - make CC=$CC
+after_script:
+  - ./bin/scib -T sample.config
