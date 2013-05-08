@@ -25,7 +25,12 @@
 #include <stdlib.h>
 #include <limits.h>
 
+#include <event2/event.h>
+#include <event2/bufferevent.h>
+
 struct config* global_config = NULL;
+
+struct evdns_base* dns = NULL;
 
 struct server* getServer(char* name);
 
@@ -110,4 +115,23 @@ struct server* getServer(char* name) {
   node->next = malloc(sizeof(struct server));
   memset(node->next, 0, sizeof(struct server));
   return node->next;
+};
+
+int dispatch_config(struct event_base* base) {
+  struct server* node = global_config->servers;
+  if (!node)
+    return 0;
+  if (!dns)
+    dns = evdns_base_new(base, 1);
+  while (node) {
+    if (!node->conn) {
+      node->conn = malloc(sizeof(struct connection));
+      memset(node->conn, 0, sizeof(struct connection));
+      node->conn->conn = bufferevent_socket_new(base, -1, BEV_OPT_CLOSE_ON_FREE);
+      bufferevent_socket_connect_hostname(node->conn->conn, dns, AF_INET, node->address, node->port);
+      bufferevent_enable(node->conn->conn, EV_READ);
+    }
+    node = node->next;
+  };
+  return 1;
 };

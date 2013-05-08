@@ -93,6 +93,7 @@ int main(int argc, char** argv) {
     event_base = event_base_new();
     signal(SIGTERM, onSignal);
     signal(SIGSTOP, onSignal);
+    dispatch_config(event_base);
     while (1)
       event_base_dispatch(event_base);
   }
