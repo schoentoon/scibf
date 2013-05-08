@@ -18,6 +18,7 @@
 #include "config.h"
 
 #include "debug.h"
+#include "irc_callbacks.h"
 
 #include <stdio.h>
 #include <errno.h>
@@ -143,6 +144,7 @@ int dispatch_config(struct event_base* base) {
       memset(node->conn, 0, sizeof(struct connection));
       node->conn->conn = bufferevent_socket_new(base, -1, BEV_OPT_CLOSE_ON_FREE);
       bufferevent_socket_connect_hostname(node->conn->conn, dns, AF_INET, node->address, node->port);
+      bufferevent_setcb(node->conn->conn, irc_conn_readcb, NULL, irc_conn_eventcb, node);
       bufferevent_enable(node->conn->conn, EV_READ);
     }
     node = node->next;
