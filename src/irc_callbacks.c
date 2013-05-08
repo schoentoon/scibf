@@ -33,12 +33,10 @@ void irc_conn_readcb(struct bufferevent *bev, void* args) {
   while (line) {
     DEBUG(254, "In: '%s'", line);
     char buf[BUFSIZ];
-    if (len >= 5) {
-      static const char* IRC_PING_SSCANF = "PING %s";
-      const char* IRC_PONG_PRINTF = "PONG %s\r\n";
-      if (sscanf(line, IRC_PING_SSCANF, buf) == 1)
-        evbuffer_add_printf(output, IRC_PONG_PRINTF, buf);
-    }
+    static const char* IRC_PING_SSCANF = "PING %s";
+    const char* IRC_PONG_PRINTF = "PONG %s\r\n";
+    if (sscanf(line, IRC_PING_SSCANF, buf) == 1)
+      evbuffer_add_printf(output, IRC_PONG_PRINTF, buf);
     free(line);
     line = evbuffer_readln(input, &len, EVBUFFER_EOL_CRLF);
   };
