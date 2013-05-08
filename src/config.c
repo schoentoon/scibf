@@ -55,6 +55,13 @@ int parse_config(char* config_file) {
     if (sscanf(line_buffer, "%[a-z_] = %[^\t\n]", key, value) == 2) {
       DEBUG(255, "key: '%s', value: '%s'", key, value);
       if (strcasecmp(key, "name") == 0) {
+        if (current_server) {
+          if (!current_server->address || !current_server->port
+            || !current_server->username || !current_server->nickname) {
+            fprintf(stderr, "Error, missing a required key for server %s\n", current_server->unique_name);
+            return 0;
+          }
+        }
         current_server = getServer(value);
         if (!current_server->unique_name) {
           current_server->unique_name = malloc(strlen(value) + 1);
@@ -92,6 +99,13 @@ int parse_config(char* config_file) {
       return 0;
     }
   };
+  if (current_server) {
+    if (!current_server->address || !current_server->port
+      || !current_server->username || !current_server->nickname) {
+      fprintf(stderr, "Error, missing a required key for server %s\n", current_server->unique_name);
+      return 0;
+    }
+  }
   fclose(f);
   return 1;
 };
