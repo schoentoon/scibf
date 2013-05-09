@@ -26,15 +26,18 @@
 struct user* new_user(char* raw) {
   struct user* output = malloc(sizeof(struct user));
   memset(output, 0, sizeof(struct user));
-  static const char* USER_SSCANF = "%31[^!]!%31[^@]@%31s";
-  char nick[32];
-  char user[32];
-  char host[32];
-  if (sscanf(raw, USER_SSCANF, nick, user, host) == 3) {
-    output->nick = strdup(nick);
-    output->user = strdup(user);
-    output->host = strdup(host);
-  };
+  if (raw) {
+    static const char* USER_SSCANF = "%31[^!]!%31[^@]@%31s";
+    char nick[32];
+    char user[32];
+    char host[32];
+    if (sscanf(raw, USER_SSCANF, nick, user, host) == 3) {
+      output->nick = strdup(nick);
+      output->user = strdup(user);
+      output->host = strdup(host);
+    } else if (strlen(raw) > 0)
+      output->nick = strdup(nick);
+  }
   DEBUG(255, "New user %s!%s@%s", output->nick, output->user, output->host);
   return output;
 };

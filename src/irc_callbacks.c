@@ -41,27 +41,46 @@ void irc_conn_readcb(struct bufferevent *bev, void* args) {
     if (sscanf(line, IRC_PING_SSCANF, buf) == 1)
       evbuffer_add_printf(output, IRC_PONG_PRINTF, buf);
     else if (len >= 3) {
-      static const char* IRC_JOIN = "JOIN";
-      char* token = strtok(line, " ");
-      if (token && (token = strtok(NULL, " ")) && strlen(token) == 3 && isdigit(token[0]) && isdigit(token[1]) && isdigit(token[2])) {
-        unsigned short uRaw = token[0]-'0';
-        uRaw = (uRaw * 10) + token[1]-'0';
-        uRaw = (uRaw * 10) + token[2]-'0';
+      static const char* IRC_NUMBERED_EVENT = "%s %d %[^\r\n]";
+      static const char* IRC_GENERAL_EVENT = "%s %s %[^\r\n]";
+      int uRaw = 0;
+      char rest[BUFSIZ];
+      char server_name[BUFSIZ];
+      if (sscanf(line, IRC_NUMBERED_EVENT, server_name, &uRaw, rest) == 3) {
         switch (uRaw) {
+        case 353: { /* :localhost 353 IAmABot = #test :IAmABot ~@Schoentoon @SomeOp */
+          static const char* NAMES_REST_SSCANF = "%s = %s :%[^\r\n]";
+          char me[32];
+          char chan[32];
+          char names[BUFSIZ];
+          DEBUG(255, "Line '%s'", line);
+          DEBUG(255, "Rest '%s'", rest);
+          if (sscanf(rest, NAMES_REST_SSCANF, me, chan, names) == 3) {
+            struct channel* channel = get_channel(server->conn, chan);
+            if (channel)
+              fill_from_names(channel, names);
+          }
+          break;
+        };
         case 376: { /* :localhost 376 IAmABot :End of MOTD command. */
           static const char* IRC_JOIN_PRINTF = "JOIN %s\r\n";
           unsigned int i;
           for (i = 0; server->channels[i]; i++)
             evbuffer_add_printf(output, IRC_JOIN_PRINTF, server->channels[i]);
           break;
-        }
         };
-      } else if (strcasecmp(token, IRC_JOIN) == 0) {
-        token = strtok(NULL, " :");
-        struct channel* channel = get_channel(server->conn, token);
-        struct user* user = new_user(&line[1]);
-        add_user_to_channel(channel, user);
-      };
+        };
+      } else {
+        char event[BUFSIZ];
+        if (sscanf(line, IRC_GENERAL_EVENT, server_name, event, rest) == 3) {
+          static const char* IRC_JOIN = "JOIN";
+          if (strcmp(event, IRC_JOIN) == 0) {
+            struct channel* channel = get_channel(server->conn, &rest[1]);
+            struct user* user = new_user(&server_name[1]);
+            add_user_to_channel(channel, user);
+          }
+        }
+      }
     }
     free(line);
     line = evbuffer_readln(input, &len, EVBUFFER_EOL_CRLF);

@@ -72,3 +72,17 @@ int add_user_to_channel(struct channel* channel, struct user* user) {
   node->next = user;
   return 1;
 };
+
+int fill_from_names(struct channel* channel, char* raw_names) {
+  if (!channel || !raw_names)
+    return 0;
+  char* names = strdup(raw_names);
+  char* name = NULL;
+  while ((name = strsep(&names, " "))) {
+    struct user* user = new_user(name);
+    if (add_user_to_channel(channel, user) == 0)
+      free_user(user);
+  }
+  free(names);
+  return 1;
+};

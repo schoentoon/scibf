@@ -35,4 +35,6 @@ struct channel* get_channel(struct connection* connection, char* channel);
 
 int add_user_to_channel(struct channel* channel, struct user* user);
 
+int fill_from_names(struct channel* channel, char* raw_names);
+
 #endif //_CHANNEL_H
