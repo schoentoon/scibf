@@ -65,10 +65,8 @@ int parse_config(char* config_file) {
           }
         }
         current_server = getServer(value);
-        if (!current_server->unique_name) {
-          current_server->unique_name = malloc(strlen(value) + 1);
-          strcpy(current_server->unique_name, value);
-        }
+        if (!current_server->unique_name)
+          current_server->unique_name = strdup(value);
       } else if (current_server == NULL) {
         fprintf(stderr, "You specified the key %s before you specified the name key, which is required.\n", key);
         fprintf(stderr, "You should probably go and fix your config.\n");
@@ -76,8 +74,7 @@ int parse_config(char* config_file) {
       } else if (strcasecmp(key, "address") == 0) {
         if (current_server->address)
           free(current_server->address);
-        current_server->address = malloc(strlen(value) + 1);
-        strcpy(current_server->address, value);
+        current_server->address = strdup(value);
       } else if (strcasecmp(key, "port") == 0) {
         long port = strtol(value, NULL, 10);
         if ((errno == ERANGE || (port == LONG_MAX || port == LONG_MIN)) || (errno != 0 && port == 0) || port < 0 || port > 65535) {
@@ -88,18 +85,15 @@ int parse_config(char* config_file) {
       } else if (strcasecmp(key, "username") == 0) {
         if (current_server->username)
           free(current_server->username);
-        current_server->username = malloc(strlen(value) + 1);
-        strcpy(current_server->username, value);
+        current_server->username = strdup(value);
       } else if (strcasecmp(key, "nickname") == 0) {
         if (current_server->nickname)
           free(current_server->nickname);
-        current_server->nickname = malloc(strlen(value) + 1);
-        strcpy(current_server->nickname, value);
+        current_server->nickname = strdup(value);
       } else if (strcasecmp(key, "password") == 0) {
         if (current_server->password)
           free(current_server->password);
-        current_server->password = malloc(strlen(value) + 1);
-        strcpy(current_server->password, value);
+        current_server->password = strdup(value);
       } else if (strcasecmp(key, "channels") == 0) {
         char* token = strtok(value, ",");
         while (token) {
@@ -111,8 +105,7 @@ int parse_config(char* config_file) {
               while (current_server->channels[++next_chan]);
               current_server->channels = realloc(current_server->channels, sizeof(char*) * (next_chan + 1));
             }
-            current_server->channels[next_chan] = malloc(strlen(token) + 1);
-            strcpy(current_server->channels[next_chan], token);
+            current_server->channels[next_chan] = strdup(token);
             current_server->channels[next_chan + 1] = NULL;
           }
           token = strtok(NULL, ",");
