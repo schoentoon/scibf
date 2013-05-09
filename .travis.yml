@@ -10,3 +10,9 @@ script:
   - make CC=$CC
 after_script:
   - ./bin/scib -D255 -T sample.config
+notifications:
+  irc:
+    channels:
+      - "irc.freenode.org#schoentoon"
+    on_success: always
+    on_failure: always
