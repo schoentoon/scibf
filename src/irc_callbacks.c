@@ -53,8 +53,6 @@ void irc_conn_readcb(struct bufferevent *bev, void* args) {
           char me[32];
           char chan[32];
           char names[BUFSIZ];
-          DEBUG(255, "Line '%s'", line);
-          DEBUG(255, "Rest '%s'", rest);
           if (sscanf(rest, NAMES_REST_SSCANF, me, chan, names) == 3) {
             struct channel* channel = get_channel(server->conn, chan);
             if (channel)

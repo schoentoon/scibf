@@ -22,7 +22,7 @@
 #  define DEBUG(level, format, ...)
 #else
    void __internal_debug(unsigned char level, const char* format, ...);
-#  define DEBUG(level, format, ...) __internal_debug(level, format, __VA_ARGS__);
+#  define DEBUG(level, format, ...) __internal_debug(level, format, ##__VA_ARGS__);
 #endif
 
 unsigned char debug;
