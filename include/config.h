@@ -34,6 +34,7 @@ struct server {
   unsigned short port;
   char* username;
   char* nickname;
+  char* password;
   struct connection* conn;
   struct server* next;
 };
@@ -49,5 +50,7 @@ struct evdns_base* dns;
 int parse_config(char* config_file);
 
 int dispatch_config(struct event_base* base);
+
+int startConnection(struct server* server, struct event_base* base);
 
 #endif //_CONFIG_H

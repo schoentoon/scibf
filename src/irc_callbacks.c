@@ -21,6 +21,7 @@
 #include "debug.h"
 
 #include <event.h>
+#include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -37,6 +38,15 @@ void irc_conn_readcb(struct bufferevent *bev, void* args) {
     const char* IRC_PONG_PRINTF = "PONG %s\r\n";
     if (sscanf(line, IRC_PING_SSCANF, buf) == 1)
       evbuffer_add_printf(output, IRC_PONG_PRINTF, buf);
+    else if (len >= 3 && isdigit(line[0]) && isdigit(line[1]) && isdigit(line[2])) {
+      unsigned short uRaw = line[0]-'0';
+      uRaw = (uRaw * 10) + line[1]-'0';
+      uRaw = (uRaw * 10) + line[2]-'0';
+      switch (uRaw) {
+      case 001:
+        break;
+      };
+    }
     free(line);
     line = evbuffer_readln(input, &len, EVBUFFER_EOL_CRLF);
   };
@@ -48,9 +58,7 @@ void irc_conn_eventcb(struct bufferevent *bev, short events, void* args) {
     struct event_base* base = bufferevent_get_base(bev);
     bufferevent_free(bev);
     struct server* node = (struct server*) args;
-    node->conn->conn = bufferevent_socket_new(base, -1, BEV_OPT_CLOSE_ON_FREE);
-    bufferevent_socket_connect_hostname(node->conn->conn, dns, AF_INET, node->address, node->port);
-    bufferevent_setcb(node->conn->conn, irc_conn_readcb, NULL, irc_conn_eventcb, node);
-    bufferevent_enable(node->conn->conn, EV_READ);
+    node->conn->conn = NULL;
+    startConnection(node, base);
   }
 };

@@ -28,6 +28,7 @@
 
 #include <event2/event.h>
 #include <event2/bufferevent.h>
+#include <event2/buffer.h>
 
 struct config* global_config = NULL;
 
@@ -94,6 +95,11 @@ int parse_config(char* config_file) {
           free(current_server->nickname);
         current_server->nickname = malloc(strlen(value) + 1);
         strcpy(current_server->nickname, value);
+      } else if (strcasecmp(key, "password") == 0) {
+        if (current_server->password)
+          free(current_server->password);
+        current_server->password = malloc(strlen(value) + 1);
+        strcpy(current_server->password, value);
       }
     } else {
       fprintf(stderr, "Parsing error at line %d.\n", line_count);
@@ -139,15 +145,26 @@ int dispatch_config(struct event_base* base) {
   if (!dns)
     dns = evdns_base_new(base, 1);
   while (node) {
-    if (!node->conn) {
-      node->conn = malloc(sizeof(struct connection));
-      memset(node->conn, 0, sizeof(struct connection));
-      node->conn->conn = bufferevent_socket_new(base, -1, BEV_OPT_CLOSE_ON_FREE);
-      bufferevent_socket_connect_hostname(node->conn->conn, dns, AF_INET, node->address, node->port);
-      bufferevent_setcb(node->conn->conn, irc_conn_readcb, NULL, irc_conn_eventcb, node);
-      bufferevent_enable(node->conn->conn, EV_READ);
-    }
+    startConnection(node, base);
     node = node->next;
   };
+  return 1;
+};
+
+int startConnection(struct server* server, struct event_base* base) {
+  if (server->conn && server->conn->conn)
+    return 0;
+  if (!server->conn)
+    server->conn = malloc(sizeof(struct connection));
+  memset(server->conn, 0, sizeof(struct connection));
+  server->conn->conn = bufferevent_socket_new(base, -1, BEV_OPT_CLOSE_ON_FREE);
+  bufferevent_socket_connect_hostname(server->conn->conn, dns, AF_INET, server->address, server->port);
+  bufferevent_setcb(server->conn->conn, irc_conn_readcb, NULL, irc_conn_eventcb, server);
+  bufferevent_enable(server->conn->conn, EV_READ);
+  struct evbuffer* output = bufferevent_get_output(server->conn->conn);
+  if (server->password)
+    evbuffer_add_printf(output, "PASS %s\r\n", server->password);
+  evbuffer_add_printf(output, "NICK %s\r\n", server->nickname);
+  evbuffer_add_printf(output, "USER %s \"%s\" \"%s\" :%s\r\n", server->username, server->username, server->username, server->username);
   return 1;
 };
