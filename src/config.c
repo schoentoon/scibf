@@ -100,6 +100,23 @@ int parse_config(char* config_file) {
           free(current_server->password);
         current_server->password = malloc(strlen(value) + 1);
         strcpy(current_server->password, value);
+      } else if (strcasecmp(key, "channels") == 0) {
+        char* token = strtok(value, ",");
+        while (token) {
+          if (token[0] == '#') {
+            unsigned int next_chan = 0;
+            if (!current_server->channels)
+              current_server->channels = malloc(sizeof(char*) * 2);
+            else {
+              while (current_server->channels[++next_chan]);
+              current_server->channels = realloc(current_server->channels, sizeof(char*) * (next_chan + 1));
+            }
+            current_server->channels[next_chan] = malloc(strlen(token) + 1);
+            strcpy(current_server->channels[next_chan], token);
+            current_server->channels[next_chan + 1] = NULL;
+          }
+          token = strtok(NULL, ",");
+        };
       }
     } else {
       fprintf(stderr, "Parsing error at line %d.\n", line_count);

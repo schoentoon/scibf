@@ -35,6 +35,7 @@ struct server {
   char* username;
   char* nickname;
   char* password;
+  char** channels;
   struct connection* conn;
   struct server* next;
 };
