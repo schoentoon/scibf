@@ -15,44 +15,24 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _CONFIG_H
-#define _CONFIG_H
+#ifndef _CHANNEL_H
+#define _CHANNEL_H
 
-#include <event2/dns.h>
-#include <event2/bufferevent.h>
+#include "user.h"
+#include "config.h"
 
-struct connection {
-  char* username;
-  char* nickname;
-  char* hostname;
-  struct channel* channels;
-  struct bufferevent* conn;
+struct channel {
+  char* name;
+  struct user* users;
+  struct channel* next;
 };
 
-struct server {
-  char* unique_name;
-  char* address;
-  unsigned short port;
-  char* username;
-  char* nickname;
-  char* password;
-  char** channels;
-  struct connection* conn;
-  struct server* next;
-};
+struct channel* new_channel(char* name);
 
-struct config {
-  struct server* servers;
-};
+void free_channel(struct channel* channel);
 
-struct config* global_config;
+struct channel* get_channel(struct connection* connection, char* channel);
 
-struct evdns_base* dns;
+int add_user_to_channel(struct channel* channel, struct user* user);
 
-int parse_config(char* config_file);
-
-int dispatch_config(struct event_base* base);
-
-int startConnection(struct server* server, struct event_base* base);
-
-#endif //_CONFIG_H
+#endif //_CHANNEL_H

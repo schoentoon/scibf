@@ -17,8 +17,9 @@
 
 #include "irc_callbacks.h"
 
-#include "config.h"
 #include "debug.h"
+#include "config.h"
+#include "channel.h"
 
 #include <event.h>
 #include <ctype.h>
@@ -40,6 +41,7 @@ void irc_conn_readcb(struct bufferevent *bev, void* args) {
     if (sscanf(line, IRC_PING_SSCANF, buf) == 1)
       evbuffer_add_printf(output, IRC_PONG_PRINTF, buf);
     else if (len >= 3) {
+      static const char* IRC_JOIN = "JOIN";
       char* token = strtok(line, " ");
       if (token && (token = strtok(NULL, " ")) && strlen(token) == 3 && isdigit(token[0]) && isdigit(token[1]) && isdigit(token[2])) {
         unsigned short uRaw = token[0]-'0';
@@ -54,6 +56,11 @@ void irc_conn_readcb(struct bufferevent *bev, void* args) {
           break;
         }
         };
+      } else if (strcasecmp(token, IRC_JOIN) == 0) {
+        token = strtok(NULL, " :");
+        struct channel* channel = get_channel(server->conn, token);
+        struct user* user = new_user(&line[1]);
+        add_user_to_channel(channel, user);
       };
     }
     free(line);
