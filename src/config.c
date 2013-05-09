@@ -50,7 +50,7 @@ int parse_config(char* config_file) {
   unsigned int line_count = 0;
   while (fgets(line_buffer, sizeof(line_buffer), f)) {
     line_count++;
-    if (line_buffer[0] == '#')
+    if (strlen(line_buffer) == 1 || line_buffer[0] == '#')
       continue;
     char key[BUFSIZ];
     char value[BUFSIZ];
