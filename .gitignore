@@ -19,3 +19,5 @@
 # scibf specify stuff
 bin/
 build/
+*.config
+!sample.config

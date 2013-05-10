@@ -60,6 +60,7 @@ void irc_conn_readcb(struct bufferevent *bev, void* args) {
           }
           break;
         };
+        case 422:   /* :localhost 422 IAmABot :MOTD File is missing */
         case 376: { /* :localhost 376 IAmABot :End of MOTD command. */
           static const char* IRC_JOIN_PRINTF = "JOIN %s\r\n";
           unsigned int i;

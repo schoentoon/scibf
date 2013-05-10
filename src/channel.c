@@ -59,7 +59,7 @@ int add_user_to_channel(struct channel* channel, struct user* user) {
     return 0;
   if (!channel->users) {
     channel->users = user;
-    return 0;
+    return 1;
   }
   struct user* node = channel->users;
   for (;;) {
@@ -80,7 +80,7 @@ int fill_from_names(struct channel* channel, char* raw_names) {
   char* name = NULL;
   while ((name = strsep(&names, " "))) {
     struct user* user = new_user(name);
-    if (add_user_to_channel(channel, user) == 0)
+    if (!user->nick || add_user_to_channel(channel, user) == 0)
       free_user(user);
   }
   free(names);
