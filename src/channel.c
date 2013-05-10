@@ -86,3 +86,15 @@ int fill_from_names(struct channel* channel, char* raw_names) {
   free(names);
   return 1;
 };
+
+struct user* get_user_from_channel(struct channel* channel, char* nickname) {
+  if (!channel || !nickname)
+    return NULL;
+  struct user* node = channel->users;
+  while (node) {
+    if (strcmp(node->nick, nickname) == 0)
+      return node;
+    node = node->next;
+  };
+  return NULL;
+};

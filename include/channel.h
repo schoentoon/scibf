@@ -37,4 +37,6 @@ int add_user_to_channel(struct channel* channel, struct user* user);
 
 int fill_from_names(struct channel* channel, char* raw_names);
 
+struct user* get_user_from_channel(struct channel* channel, char* nickname);
+
 #endif //_CHANNEL_H

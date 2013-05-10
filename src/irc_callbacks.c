@@ -71,12 +71,27 @@ void irc_conn_readcb(struct bufferevent *bev, void* args) {
       } else {
         char event[BUFSIZ];
         if (sscanf(line, IRC_GENERAL_EVENT, server_name, event, rest) == 3) {
-          static const char* IRC_JOIN = "JOIN";
-          if (strcmp(event, IRC_JOIN) == 0) {
+          static const char* IRC_JOIN_EVENT = "JOIN";
+          static const char* IRC_NICK_EVENT = "NICK";
+          if (strcmp(event, IRC_JOIN_EVENT) == 0) {
             struct channel* channel = get_channel(server->conn, &rest[1]);
             struct user* user = new_user(&server_name[1]);
             add_user_to_channel(channel, user);
-          }
+          } else if (strcmp(event, IRC_NICK_EVENT) == 0) {
+            struct user* tmp = new_user(&server_name[1]);
+            struct channel* node = server->conn->channels;
+            while (node) {
+              struct user* user = get_user_from_channel(node, tmp->nick);
+              if (user) {
+                DEBUG(255, "Changing user '%s' to '%s' in channel", user->nick, &rest[1], node->name);
+                if (user->nick)
+                  free(user->nick);
+                user->nick = strdup(&rest[1]);
+              }
+              node = node->next;
+            };
+            free_user(tmp);
+          };
         }
       }
     }
