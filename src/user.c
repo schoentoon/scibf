@@ -27,6 +27,30 @@ struct user* new_user(char* raw) {
   struct user* output = malloc(sizeof(struct user));
   memset(output, 0, sizeof(struct user));
   if (raw) {
+    unsigned char run = 1;
+    while (run) {
+      switch (*raw) {
+      case '+':
+        output->mode |= VOICED_USER;
+        raw++;
+        break;
+      case '%':
+        output->mode |= HALFOPERATOR;
+        raw++;
+        break;
+      case '@':
+        output->mode |= CHAN_OPERATOR;
+        raw++;
+        break;
+      case '&': /* We are simply ignoring these for now, should be fairly easy to add them later. */
+      case '~':
+        raw++;
+        break;
+      default:
+        run = 0;
+        break;
+      };
+    }
     static const char* USER_SSCANF = "%31[^!]!%31[^@]@%31s";
     char nick[32];
     char user[32];

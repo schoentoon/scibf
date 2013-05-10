@@ -18,10 +18,15 @@
 #ifndef _USER_H
 #define _USER_H
 
+#define VOICED_USER   0x01
+#define HALFOPERATOR  0x02
+#define CHAN_OPERATOR 0x04
+
 struct user {
   char* user;
   char* nick;
   char* host;
+  unsigned char mode;
   struct user* next;
 };
 

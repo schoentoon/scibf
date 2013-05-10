@@ -63,8 +63,14 @@ int add_user_to_channel(struct channel* channel, struct user* user) {
   }
   struct user* node = channel->users;
   for (;;) {
-    if (strcmp(node->nick, user->nick) == 0)
-      return 0;
+    if (strcmp(node->nick, user->nick) == 0) {
+      if (user->mode == node->mode)
+        return 0;
+      else {
+        node->mode = user->mode;
+        return 0;
+      }
+    }
     if (!node->next)
       break;
     node = node->next;
