@@ -110,7 +110,12 @@ int parse_config(char* config_file) {
           }
           token = strtok(NULL, ",");
         };
-      }
+      } else if (strcasecmp(key, "retry_time") == 0) {
+        errno = 0;
+        long tmp = strtol(value, NULL, 10);
+        if (errno == 0 && tmp > 0)
+          current_server->retry_time = (unsigned int) tmp;
+      };
     } else {
       fprintf(stderr, "Parsing error at line %d.\n", line_count);
       return 0;
@@ -134,6 +139,7 @@ struct server* getServer(char* name) {
   if (!node) {
     global_config->servers = malloc(sizeof(struct server));
     memset(global_config->servers, 0, sizeof(struct server));
+    global_config->servers->retry_time = 10; /* 10 seconds as default.. */
     return global_config->servers;
   }
   for (;;) {
@@ -145,6 +151,7 @@ struct server* getServer(char* name) {
   }
   node->next = malloc(sizeof(struct server));
   memset(node->next, 0, sizeof(struct server));
+  node->next->retry_time = 10; /* 10 seconds as default.. */
   return node->next;
 };
 
@@ -168,6 +175,8 @@ int startConnection(struct server* server, struct event_base* base) {
     server->conn = malloc(sizeof(struct connection));
   memset(server->conn, 0, sizeof(struct connection));
   server->conn->conn = bufferevent_socket_new(base, -1, BEV_OPT_CLOSE_ON_FREE);
+  struct timeval timeout = {90, 0};
+  bufferevent_set_timeouts(server->conn->conn, &timeout, NULL);
   bufferevent_socket_connect_hostname(server->conn->conn, dns, AF_INET, server->address, server->port);
   bufferevent_setcb(server->conn->conn, irc_conn_readcb, NULL, irc_conn_eventcb, server);
   bufferevent_enable(server->conn->conn, EV_READ);

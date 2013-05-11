@@ -101,13 +101,29 @@ void irc_conn_readcb(struct bufferevent *bev, void* args) {
   };
 };
 
-void irc_conn_eventcb(struct bufferevent *bev, short events, void* args) {
-  DEBUG(255, "irc_conn_eventcb(%p, %d, %p);", bev, events, args);
-  if (!(events & BEV_EVENT_CONNECTED)) {
+struct reconnect_struct {
+  struct event_base* base;
+  struct server* server;
+};
+
+static void reconnectServer(evutil_socket_t fd, short event, void* args) {
+  DEBUG(255, "reconnectServer(%d, 0x%02x, %p);", fd, event, args);
+  struct reconnect_struct* reconnect_struct = (struct reconnect_struct*) args;
+  startConnection(reconnect_struct->server, reconnect_struct->base);
+  free(reconnect_struct);
+};
+
+void irc_conn_eventcb(struct bufferevent *bev, short event, void* args) {
+  DEBUG(255, "irc_conn_eventcb(%p, 0x%02x, %p);", bev, event, args);
+  if (!(event & BEV_EVENT_CONNECTED)) {
     struct event_base* base = bufferevent_get_base(bev);
     bufferevent_free(bev);
     struct server* node = (struct server*) args;
     node->conn->conn = NULL;
-    startConnection(node, base);
+    struct timeval tv = { node->retry_time, 0 };
+    struct reconnect_struct* reconnect_struct = malloc(sizeof(struct reconnect_struct));
+    reconnect_struct->server = node;
+    reconnect_struct->base = base;
+    event_base_once(base, -1, EV_TIMEOUT, reconnectServer, reconnect_struct, &tv);
   }
 };
