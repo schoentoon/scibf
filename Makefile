@@ -7,7 +7,7 @@ DEPS   := build/main.o build/debug.o build/config.o build/irc_callbacks.o build/
 
 .PHONY: all clean
 
-all: build $(DEPS) link
+all: build $(DEPS) bin/$(BINARY)
 
 build:
 	-mkdir -p build/push bin
@@ -30,7 +30,7 @@ build/channel.o: src/channel.c include/channel.h
 build/user.o: src/user.c include/user.h
 	$(CC) $(CFLAGS) $(INC) -c -o build/user.o src/user.c
 
-link: $(DEPS)
+bin/$(BINARY): $(DEPS)
 	$(CC) $(CFLAGS) $(INC) -o bin/$(BINARY) $(DEPS) $(LFLAGS)
 
 clean:
