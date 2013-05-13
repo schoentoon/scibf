@@ -39,4 +39,6 @@ int fill_from_names(struct channel* channel, char* raw_names);
 
 struct user* get_user_from_channel(struct channel* channel, char* nickname);
 
+int remove_user_from_channel(struct channel* channel, struct user* user);
+
 #endif //_CHANNEL_H

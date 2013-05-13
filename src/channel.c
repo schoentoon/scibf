@@ -104,3 +104,19 @@ struct user* get_user_from_channel(struct channel* channel, char* nickname) {
   };
   return NULL;
 };
+
+int remove_user_from_channel(struct channel* channel, struct user* user) {
+  if (!channel || !user)
+    return 0;
+  struct user* node = channel->users;
+  while (node) {
+    if (node == user) {
+      if (node->next)
+        node->next = node->next->next;
+      free_user(node);
+      return 1;
+    }
+    node = node->next;
+  };
+  return 0;
+};

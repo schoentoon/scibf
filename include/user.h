@@ -34,4 +34,6 @@ struct user* new_user(char* raw);
 
 void free_user(struct user* user);
 
+int get_nickname(char* rawline, char* buf);
+
 #endif //_USER_H

@@ -77,3 +77,8 @@ void free_user(struct user* user) {
     free(user);
   }
 };
+
+int get_nickname(char* rawline, char* buf) {
+  static const char* USER_SSCANF = ":%31[^!]!";
+  return sscanf(rawline, USER_SSCANF, buf);
+};
