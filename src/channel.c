@@ -110,10 +110,12 @@ int remove_user_from_channel(struct channel* channel, struct user* user) {
     return 0;
   struct user* node = channel->users;
   while (node) {
-    if (node == user) {
-      if (node->next)
-        node->next = node->next->next;
-      free_user(node);
+    if (node->next == user) {
+      if (user->next)
+        node->next = user->next;
+      else
+        node->next = NULL;
+      free_user(user);
       return 1;
     }
     node = node->next;
