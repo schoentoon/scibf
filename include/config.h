@@ -57,4 +57,6 @@ int dispatch_config(struct event_base* base);
 
 int startConnection(struct server* server, struct event_base* base);
 
+int free_connection(struct connection* connection);
+
 #endif //_CONFIG_H

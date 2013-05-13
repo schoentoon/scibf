@@ -194,3 +194,27 @@ int startConnection(struct server* server, struct event_base* base) {
   evbuffer_add_printf(output, "USER %s \"%s\" \"%s\" :%s\r\n", server->username, server->username, server->username, server->username);
   return 1;
 };
+
+#include "channel.h"
+
+int free_connection(struct connection* connection) {
+  if (!connection)
+    return 0;
+  if (connection->conn)
+    bufferevent_free(connection->conn);
+  if (connection->channels) {
+    struct channel* chan_node = connection->channels;
+    while (chan_node) {
+      struct user* user_node = chan_node->users;
+      while (user_node) {
+        struct user* tmp_user = user_node;
+        user_node = user_node->next;
+        free_user(tmp_user);
+      };
+      struct channel* tmp_chan = chan_node;
+      chan_node = chan_node->next;
+      free_channel(tmp_chan);
+    };
+  }
+  return 1;
+};
