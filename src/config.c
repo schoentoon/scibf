@@ -215,6 +215,10 @@ int free_connection(struct connection* connection) {
       chan_node = chan_node->next;
       free_channel(tmp_chan);
     };
-  }
+  };
+  free(connection->hostname);
+  free(connection->nickname);
+  free(connection->username);
+  free(connection);
   return 1;
 };
