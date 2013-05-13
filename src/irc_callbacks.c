@@ -80,19 +80,20 @@ void irc_conn_readcb(struct bufferevent *bev, void* args) {
             struct user* user = new_user(&server_name[1]);
             add_user_to_channel(channel, user);
           } else if (strcmp(event, IRC_NICK_EVENT) == 0) {
-            struct user* tmp = new_user(&server_name[1]);
-            struct channel* node = server->conn->channels;
-            while (node) {
-              struct user* user = get_user_from_channel(node, tmp->nick);
-              if (user) {
-                DEBUG(255, "Changing user '%s' to '%s' in channel", user->nick, &rest[1], node->name);
-                if (user->nick)
-                  free(user->nick);
-                user->nick = strdup(&rest[1]);
-              }
-              node = node->next;
-            };
-            free_user(tmp);
+            char buf[32];
+            if (get_nickname(server_name, buf)) {
+              struct channel* node = server->conn->channels;
+              while (node) {
+                struct user* user = get_user_from_channel(node, buf);
+                if (user) {
+                  DEBUG(255, "Changing user '%s' to '%s' in channel %s", user->nick, &rest[1], node->name);
+                  if (user->nick)
+                    free(user->nick);
+                  user->nick = strdup(&rest[1]);
+                }
+                node = node->next;
+              };
+            }
           } else if (strcmp(event, IRC_PART_EVENT) == 0) {
             struct channel* channel = get_channel(server->conn, &rest[1]);
             if (channel) {
