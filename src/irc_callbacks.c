@@ -55,8 +55,7 @@ void irc_conn_readcb(struct bufferevent *bev, void* args) {
           char names[BUFSIZ];
           if (sscanf(rest, NAMES_REST_SSCANF, me, chan, names) == 3) {
             struct channel* channel = get_channel(server->conn, chan);
-            if (channel)
-              fill_from_names(channel, names);
+            fill_from_names(channel, names);
           }
           break;
         };
@@ -88,8 +87,7 @@ void irc_conn_readcb(struct bufferevent *bev, void* args) {
                 struct user* user = get_user_from_channel(node, buf);
                 if (user) {
                   DEBUG(255, "Changing user '%s' to '%s' in channel %s", user->nick, &rest[1], node->name);
-                  if (user->nick)
-                    free(user->nick);
+                  free(user->nick);
                   user->nick = strdup(&rest[1]);
                 }
                 node = node->next;

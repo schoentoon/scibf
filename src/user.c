@@ -68,12 +68,9 @@ struct user* new_user(char* raw) {
 
 void free_user(struct user* user) {
   if (user) {
-    if (user->host)
-      free(user->host);
-    if (user->nick)
-      free(user->nick);
-    if (user->user)
-      free(user->user);
+    free(user->host);
+    free(user->nick);
+    free(user->user);
     free(user);
   }
 };

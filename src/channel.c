@@ -35,8 +35,7 @@ void free_channel(struct channel* channel) {
       user_node = user_node->next;
       free_user(tmp_user);
     };
-    if (channel->name)
-      free(channel->name);
+    free(channel->name);
     free(channel);
   };
 };
