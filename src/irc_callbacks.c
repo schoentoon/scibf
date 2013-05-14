@@ -139,9 +139,9 @@ void irc_conn_eventcb(struct bufferevent *bev, short event, void* args) {
   DEBUG(255, "irc_conn_eventcb(%p, 0x%02x, %p);", bev, event, args);
   if (!(event & BEV_EVENT_CONNECTED)) {
     struct event_base* base = bufferevent_get_base(bev);
-    bufferevent_free(bev);
     struct server* node = (struct server*) args;
-    node->conn->conn = NULL;
+    free_connection(node->conn);
+    node->conn = NULL;
     struct timeval tv = { node->retry_time, 0 };
     struct reconnect_struct* reconnect_struct = malloc(sizeof(struct reconnect_struct));
     reconnect_struct->server = node;
