@@ -17,6 +17,7 @@
 
 #include "channel.h"
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -124,6 +125,27 @@ int remove_user_from_channel(struct channel* channel, struct user* user) {
       return 1;
     }
     node = node->next;
+  };
+  return 0;
+};
+
+int parse_who_header(struct channel* channel, char* raw_line) {
+  if (!channel || !raw_line)
+    return 0;
+  static const char* SSCANF = "%s %s %s %s";
+  char user[32];
+  char host[BUFSIZ];
+  char server[BUFSIZ];
+  char nickname[32];
+  if (sscanf(raw_line, SSCANF, user, host, server, nickname) == 4) {
+    struct user* user_ptr = get_user_from_channel(channel, nickname);
+    if (!user_ptr)
+      return 0;
+    free(user_ptr->host);
+    user_ptr->host = strdup(host);
+    free(user_ptr->user);
+    user_ptr->user = strdup(user);
+    return 1;
   };
   return 0;
 };

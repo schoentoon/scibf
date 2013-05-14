@@ -41,4 +41,6 @@ struct user* get_user_from_channel(struct channel* channel, char* nickname);
 
 int remove_user_from_channel(struct channel* channel, struct user* user);
 
+int parse_who_header(struct channel* channel, char* raw_line);
+
 #endif //_CHANNEL_H

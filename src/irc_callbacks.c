@@ -48,6 +48,17 @@ void irc_conn_readcb(struct bufferevent *bev, void* args) {
       char server_name[BUFSIZ];
       if (sscanf(line, IRC_NUMBERED_EVENT, server_name, &uRaw, rest) == 3) {
         switch (uRaw) {
+        case 352: { /* :localhost 352 IAmABot #test scibf 7499CEAE.E300844E.CC9601B0.IP localhost IAmABot H :0 scibf */
+          static const char* WHO_SSCANF = "%s %s %[^\r\n]";
+          char me[32];
+          char chan[32];
+          char who_output[BUFSIZ];
+          if (sscanf(rest, WHO_SSCANF, me, chan, who_output) == 3) {
+            struct channel* channel = get_channel(server->conn, chan);
+            parse_who_header(channel, who_output);
+          };
+          break;
+        };
         case 353: { /* :localhost 353 IAmABot = #test :IAmABot ~@Schoentoon @SomeOp */
           static const char* NAMES_REST_SSCANF = "%s = %s :%[^\r\n]";
           char me[32];
