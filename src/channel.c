@@ -29,6 +29,12 @@ struct channel* new_channel(char* name) {
 
 void free_channel(struct channel* channel) {
   if (channel) {
+    struct user* user_node = channel->users;
+    while (user_node) {
+      struct user* tmp_user = user_node;
+      user_node = user_node->next;
+      free_user(tmp_user);
+    };
     if (channel->name)
       free(channel->name);
     free(channel);

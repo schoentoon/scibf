@@ -205,12 +205,6 @@ int free_connection(struct connection* connection) {
   if (connection->channels) {
     struct channel* chan_node = connection->channels;
     while (chan_node) {
-      struct user* user_node = chan_node->users;
-      while (user_node) {
-        struct user* tmp_user = user_node;
-        user_node = user_node->next;
-        free_user(tmp_user);
-      };
       struct channel* tmp_chan = chan_node;
       chan_node = chan_node->next;
       free_channel(tmp_chan);
