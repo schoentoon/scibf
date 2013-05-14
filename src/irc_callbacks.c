@@ -59,6 +59,17 @@ void irc_conn_readcb(struct bufferevent *bev, void* args) {
           }
           break;
         };
+        case 366: { /* :localhost 366 IAmABot #test :End of /NAMES list. */
+          DEBUG(255, "rest: '%s'", rest);
+          static const char* END_OF_NAMES_CHAN = "%s %s";
+          char me[32];
+          char chan[32];
+          if (sscanf(rest, END_OF_NAMES_CHAN, me, chan) == 2) {
+            static const char* WHO_CHAN_PRINTF = "WHO %s\r\n";
+            evbuffer_add_printf(output, WHO_CHAN_PRINTF, chan);
+          }
+          break;
+        };
         case 422:   /* :localhost 422 IAmABot :MOTD File is missing */
         case 376: { /* :localhost 376 IAmABot :End of MOTD command. */
           static const char* IRC_JOIN_PRINTF = "JOIN %s\r\n";
