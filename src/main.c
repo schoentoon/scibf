@@ -38,9 +38,28 @@ static const struct option g_LongOpts[] = {
 
 struct event_base* event_base = NULL;
 
+void quit_sent_event(struct bufferevent* buf, void* arg) {
+  struct evbuffer* output = bufferevent_get_output(buf);
+  if (evbuffer_get_length(output) == 0) {
+    bufferevent_free(buf);
+    int *count = (int*) arg;
+    if (--(*count) == 0)
+      exit(0);
+  };
+};
+
 void onSignal(int signal) {
-  event_base_free(event_base);
-  exit(0);
+  struct server* server = global_config->servers;
+  int *count = malloc(sizeof(int));
+  (*count) = 0;
+  while (server) {
+    (*count)++;
+    bufferevent_setcb(server->conn->conn, NULL, quit_sent_event, NULL, count);
+    struct evbuffer* output = bufferevent_get_output(server->conn->conn);
+    evbuffer_add_printf(output, "QUIT\r\n");
+    evbuffer_freeze(output, 0);
+    server = server->next;
+  };
 };
 
 static int usage() {
@@ -92,7 +111,7 @@ int main(int argc, char** argv) {
   if (foreground || debug || (fork() == 0)) {
     event_base = event_base_new();
     signal(SIGTERM, onSignal);
-    signal(SIGSTOP, onSignal);
+    signal(SIGINT, onSignal);
     dispatch_config(event_base);
     while (1)
       event_base_dispatch(event_base);
