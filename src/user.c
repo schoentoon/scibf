@@ -28,33 +28,30 @@ struct user* new_user(char* raw) {
   memset(output, 0, sizeof(struct user));
   if (raw) {
     unsigned char run = 1;
-    while (run) {
+    do {
       switch (*raw) {
       case '+':
         output->mode |= VOICED_USER;
-        raw++;
         break;
       case '%':
         output->mode |= HALFOPERATOR;
-        raw++;
         break;
       case '@':
         output->mode |= CHAN_OPERATOR;
-        raw++;
         break;
       case '&':
         output->mode |= CHAN_OWNER;
-        raw++;
         break;
       case '~':
         output->mode |= SUPEROP;
-        raw++;
         break;
       default:
         run = 0;
         break;
       };
-    }
+      if (run)
+        raw++;
+    } while (run);
     static const char* USER_SSCANF = "%31[^!]!%31[^@]@%31s";
     char nick[NICK_LEN];
     char user[MAX_LINE];
