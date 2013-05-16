@@ -97,6 +97,7 @@ void irc_conn_readcb(struct bufferevent *bev, void* args) {
           static const char* IRC_NICK_EVENT = "NICK";
           static const char* IRC_PART_EVENT = "PART";
           static const char* IRC_QUIT_EVENT = "QUIT";
+          static const char* IRC_PRIVMSG_EVENT = "PRIVMSG";
           if (strcmp(event, IRC_JOIN_EVENT) == 0) {
             struct channel* channel = get_channel(server->conn, &rest[1]);
             struct user* user = new_user(&server_name[1]);
@@ -132,6 +133,21 @@ void irc_conn_readcb(struct bufferevent *bev, void* args) {
                 struct user* user = get_user_from_channel(node, buf);
                 remove_user_from_channel(node, user);
                 node = node->next;
+              };
+            };
+          } else if (strcmp(event, IRC_PRIVMSG_EVENT) == 0) {
+            static const char* PARSE_CHAN_PRIVMSG = "%s :%[^\r\n]";
+            char chan[32];
+            char buf[BUFSIZ];
+            if (sscanf(rest, PARSE_CHAN_PRIVMSG, chan, buf) == 2) {
+              struct channel* channel = get_channel(server->conn, chan);
+              if (channel) {
+                char nickname[32];
+                if (get_nickname(server_name, nickname)) {
+                  struct user* user = get_user_from_channel(channel, nickname);
+                  if (user) /* Call the channel message callbacks from here. */
+                    DEBUG(255, "<%s> %s", user->nick, buf);
+                }
               };
             };
           };
