@@ -56,7 +56,7 @@ void onSignal(int signal) {
     (*count)++;
     bufferevent_setcb(server->conn->conn, NULL, quit_sent_event, NULL, count);
     struct evbuffer* output = bufferevent_get_output(server->conn->conn);
-    evbuffer_add_printf(output, "QUIT\r\n");
+    evbuffer_add_printf(output, "QUIT :Closed with signal %d\r\n", signal);
     evbuffer_freeze(output, 0);
     server = server->next;
   };
