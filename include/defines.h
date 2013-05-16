@@ -15,33 +15,9 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _CHANNEL_H
-#define _CHANNEL_H
+#include "debug.h"
 
-#include "user.h"
-#include "config.h"
-#include "defines.h"
-
-struct channel {
-  char* name;
-  struct user* users;
-  struct channel* next;
-};
-
-struct channel* new_channel(char* name);
-
-void free_channel(struct channel* channel);
-
-struct channel* get_channel(struct connection* connection, char* channel);
-
-int add_user_to_channel(struct channel* channel, struct user* user);
-
-int fill_from_names(struct channel* channel, char* raw_names);
-
-struct user* get_user_from_channel(struct channel* channel, char* nickname);
-
-int remove_user_from_channel(struct channel* channel, struct user* user);
-
-int parse_who_header(struct channel* channel, char* raw_line);
-
-#endif //_CHANNEL_H
+#define CHAN_LEN 50
+#define NICK_LEN 32
+#define MAX_LINE 510
+#define MAX_LINE_CRLF 512

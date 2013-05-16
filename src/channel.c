@@ -133,10 +133,10 @@ int parse_who_header(struct channel* channel, char* raw_line) {
   if (!channel || !raw_line)
     return 0;
   static const char* SSCANF = "%s %s %s %s";
-  char user[32];
-  char host[BUFSIZ];
-  char server[BUFSIZ];
-  char nickname[32];
+  char user[NICK_LEN];
+  char host[MAX_LINE];
+  char server[MAX_LINE];
+  char nickname[NICK_LEN];
   if (sscanf(raw_line, SSCANF, user, host, server, nickname) == 4) {
     struct user* user_ptr = get_user_from_channel(channel, nickname);
     if (!user_ptr)

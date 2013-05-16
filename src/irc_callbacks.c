@@ -17,9 +17,9 @@
 
 #include "irc_callbacks.h"
 
-#include "debug.h"
 #include "config.h"
 #include "channel.h"
+#include "defines.h"
 
 #include <event.h>
 #include <ctype.h>
@@ -35,7 +35,7 @@ void irc_conn_readcb(struct bufferevent *bev, void* args) {
   char* line = evbuffer_readln(input, &len, EVBUFFER_EOL_CRLF);
   while (line) {
     DEBUG(254, "In: '%s'", line);
-    char buf[BUFSIZ];
+    char buf[MAX_LINE];
     static const char* IRC_PING_SSCANF = "PING %s";
     static const char* IRC_PONG_PRINTF = "PONG %s\r\n";
     if (sscanf(line, IRC_PING_SSCANF, buf) == 1)
@@ -44,15 +44,15 @@ void irc_conn_readcb(struct bufferevent *bev, void* args) {
       static const char* IRC_NUMBERED_EVENT = "%s %d %[^\r\n]";
       static const char* IRC_GENERAL_EVENT = "%s %s %[^\r\n]";
       int uRaw = 0;
-      char rest[BUFSIZ];
-      char server_name[BUFSIZ];
+      char rest[MAX_LINE];
+      char server_name[MAX_LINE];
       if (sscanf(line, IRC_NUMBERED_EVENT, server_name, &uRaw, rest) == 3) {
         switch (uRaw) {
         case 352: { /* :localhost 352 IAmABot #test scibf 7499CEAE.E300844E.CC9601B0.IP localhost IAmABot H :0 scibf */
           static const char* WHO_SSCANF = "%s %s %[^\r\n]";
-          char me[32];
-          char chan[32];
-          char who_output[BUFSIZ];
+          char me[NICK_LEN];
+          char chan[CHAN_LEN];
+          char who_output[MAX_LINE];
           if (sscanf(rest, WHO_SSCANF, me, chan, who_output) == 3) {
             struct channel* channel = get_channel(server->conn, chan);
             parse_who_header(channel, who_output);
@@ -61,9 +61,9 @@ void irc_conn_readcb(struct bufferevent *bev, void* args) {
         };
         case 353: { /* :localhost 353 IAmABot = #test :IAmABot ~@Schoentoon @SomeOp */
           static const char* NAMES_REST_SSCANF = "%s = %s :%[^\r\n]";
-          char me[32];
-          char chan[32];
-          char names[BUFSIZ];
+          char me[NICK_LEN];
+          char chan[CHAN_LEN];
+          char names[MAX_LINE];
           if (sscanf(rest, NAMES_REST_SSCANF, me, chan, names) == 3) {
             struct channel* channel = get_channel(server->conn, chan);
             fill_from_names(channel, names);
@@ -73,8 +73,8 @@ void irc_conn_readcb(struct bufferevent *bev, void* args) {
         case 366: { /* :localhost 366 IAmABot #test :End of /NAMES list. */
           DEBUG(255, "rest: '%s'", rest);
           static const char* END_OF_NAMES_CHAN = "%s %s";
-          char me[32];
-          char chan[32];
+          char me[NICK_LEN];
+          char chan[CHAN_LEN];
           if (sscanf(rest, END_OF_NAMES_CHAN, me, chan) == 2) {
             static const char* WHO_CHAN_PRINTF = "WHO %s\r\n";
             evbuffer_add_printf(output, WHO_CHAN_PRINTF, chan);
@@ -91,7 +91,7 @@ void irc_conn_readcb(struct bufferevent *bev, void* args) {
         };
         };
       } else {
-        char event[BUFSIZ];
+        char event[MAX_LINE];
         if (sscanf(line, IRC_GENERAL_EVENT, server_name, event, rest) == 3) {
           static const char* IRC_JOIN_EVENT = "JOIN";
           static const char* IRC_NICK_EVENT = "NICK";
@@ -103,7 +103,7 @@ void irc_conn_readcb(struct bufferevent *bev, void* args) {
             struct user* user = new_user(&server_name[1]);
             add_user_to_channel(channel, user);
           } else if (strcmp(event, IRC_NICK_EVENT) == 0) {
-            char buf[32];
+            char buf[NICK_LEN];
             if (get_nickname(server_name, buf)) {
               struct channel* node = server->conn->channels;
               while (node) {
@@ -119,14 +119,14 @@ void irc_conn_readcb(struct bufferevent *bev, void* args) {
           } else if (strcmp(event, IRC_PART_EVENT) == 0) {
             struct channel* channel = get_channel(server->conn, &rest[1]);
             if (channel) {
-              char buf[32];
+              char buf[NICK_LEN];
               if (get_nickname(server_name, buf)) {
                 struct user* user = get_user_from_channel(channel, buf);
                 remove_user_from_channel(channel, user);
               }
             }
           } else if (strcmp(event, IRC_QUIT_EVENT) == 0) {
-            char buf[32];
+            char buf[NICK_LEN];
             if (get_nickname(server_name, buf)) {
               struct channel* node = server->conn->channels;
               while (node) {
@@ -137,32 +137,32 @@ void irc_conn_readcb(struct bufferevent *bev, void* args) {
             };
           } else if (strcmp(event, IRC_PRIVMSG_EVENT) == 0) {
             static const char* PARSE_CHAN_PRIVMSG = "%s :%[^\r\n]";
-            char chan[32];
-            char buf[BUFSIZ];
+            char chan[CHAN_LEN];
+            char buf[MAX_LINE];
             if (sscanf(rest, PARSE_CHAN_PRIVMSG, chan, buf) == 2) {
               struct channel* channel = get_channel(server->conn, chan);
               if (channel) {
-                char nickname[32];
+                char nickname[NICK_LEN];
                 if (get_nickname(server_name, nickname)) {
                   struct user* user = get_user_from_channel(channel, nickname);
                   if (user) { /* Call the channel message callbacks from here. */
                     static const char* PARSE_ACTION = "\001ACTION %[^\001]";
-                    char action[BUFSIZ];
+                    char action[MAX_LINE];
                     if (sscanf(buf, PARSE_ACTION, action) == 1) {
                       DEBUG(1, "%s %s", user->nick, action);
                     } else
                       DEBUG(1, "<%s> %s", user->nick, buf);
                   }
                 }
-              };
-            };
-          };
+              }
+            }
+          }
         }
       }
     }
     free(line);
     line = evbuffer_readln(input, &len, EVBUFFER_EOL_CRLF);
-  };
+  }
 };
 
 struct reconnect_struct {

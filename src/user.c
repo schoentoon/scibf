@@ -17,7 +17,7 @@
 
 #include "user.h"
 
-#include "debug.h"
+#include "defines.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -52,9 +52,9 @@ struct user* new_user(char* raw) {
       };
     }
     static const char* USER_SSCANF = "%31[^!]!%31[^@]@%31s";
-    char nick[32];
-    char user[32];
-    char host[32];
+    char nick[NICK_LEN];
+    char user[MAX_LINE];
+    char host[MAX_LINE];
     if (sscanf(raw, USER_SSCANF, nick, user, host) == 3) {
       output->nick = strdup(nick);
       output->user = strdup(user);

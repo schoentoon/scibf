@@ -18,6 +18,7 @@
 #include "config.h"
 
 #include "debug.h"
+#include "channel.h"
 #include "irc_callbacks.h"
 
 #include <stdio.h>
@@ -194,8 +195,6 @@ int startConnection(struct server* server, struct event_base* base) {
   evbuffer_add_printf(output, "USER %s \"%s\" \"%s\" :%s\r\n", server->username, server->username, server->username, server->username);
   return 1;
 };
-
-#include "channel.h"
 
 int free_connection(struct connection* connection) {
   if (!connection)
