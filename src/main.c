@@ -53,11 +53,13 @@ void onSignal(int signal) {
   int *count = malloc(sizeof(int));
   (*count) = 0;
   while (server) {
-    (*count)++;
-    bufferevent_setcb(server->conn->conn, NULL, quit_sent_event, NULL, count);
-    struct evbuffer* output = bufferevent_get_output(server->conn->conn);
-    evbuffer_add_printf(output, "QUIT :Closed with signal %d\r\n", signal);
-    evbuffer_freeze(output, 0);
+    if (server->conn->conn) {
+      (*count)++;
+      bufferevent_setcb(server->conn->conn, NULL, quit_sent_event, NULL, count);
+      struct evbuffer* output = bufferevent_get_output(server->conn->conn);
+      evbuffer_add_printf(output, "QUIT :Closed with signal %d\r\n", signal);
+      evbuffer_freeze(output, 0);
+    }
     server = server->next;
   };
 };
@@ -110,9 +112,9 @@ int main(int argc, char** argv) {
   }
   if (foreground || debug || (fork() == 0)) {
     event_base = event_base_new();
+    dispatch_config(event_base);
     signal(SIGTERM, onSignal);
     signal(SIGINT, onSignal);
-    dispatch_config(event_base);
     while (1)
       event_base_dispatch(event_base);
   }
