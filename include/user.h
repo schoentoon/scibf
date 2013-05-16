@@ -21,6 +21,8 @@
 #define VOICED_USER   0x01
 #define HALFOPERATOR  0x02
 #define CHAN_OPERATOR 0x04
+#define CHAN_OWNER    0x08
+#define SUPEROP       0x10
 
 struct user {
   char* user;

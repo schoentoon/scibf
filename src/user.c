@@ -42,8 +42,12 @@ struct user* new_user(char* raw) {
         output->mode |= CHAN_OPERATOR;
         raw++;
         break;
-      case '&': /* We are simply ignoring these for now, should be fairly easy to add them later. */
+      case '&':
+        output->mode |= CHAN_OWNER;
+        raw++;
+        break;
       case '~':
+        output->mode |= SUPEROP;
         raw++;
         break;
       default:
