@@ -52,7 +52,7 @@ struct user* new_user(char* raw) {
       if (run)
         raw++;
     } while (run);
-    static const char* USER_SSCANF = "%31[^!]!%31[^@]@%31s";
+    static const char* USER_SSCANF = "%31[^!]!%[^@]@%s";
     char nick[NICK_LEN];
     char user[MAX_LINE];
     char host[MAX_LINE];
