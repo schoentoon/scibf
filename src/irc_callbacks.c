@@ -145,8 +145,14 @@ void irc_conn_readcb(struct bufferevent *bev, void* args) {
                 char nickname[32];
                 if (get_nickname(server_name, nickname)) {
                   struct user* user = get_user_from_channel(channel, nickname);
-                  if (user) /* Call the channel message callbacks from here. */
-                    DEBUG(255, "<%s> %s", user->nick, buf);
+                  if (user) { /* Call the channel message callbacks from here. */
+                    static const char* PARSE_ACTION = "\001ACTION %[^\001]";
+                    char action[BUFSIZ];
+                    if (sscanf(buf, PARSE_ACTION, action) == 1) {
+                      DEBUG(1, "%s %s", user->nick, action);
+                    } else
+                      DEBUG(1, "<%s> %s", user->nick, buf);
+                  }
                 }
               };
             };
