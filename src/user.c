@@ -52,7 +52,7 @@ struct user* new_user(char* raw) {
       if (run)
         raw++;
     } while (run);
-    static const char* USER_SSCANF = "%31[^!]!%[^@]@%s";
+    static const char* USER_SSCANF = "%32[^!]!%[^@]@%s";
     char nick[NICK_LEN];
     char user[MAX_LINE];
     char host[MAX_LINE];
@@ -77,6 +77,6 @@ void free_user(struct user* user) {
 };
 
 int get_nickname(char* rawline, char* buf) {
-  static const char* USER_SSCANF = ":%31[^!]!";
+  static const char* USER_SSCANF = ":%32[^!]!";
   return sscanf(rawline, USER_SSCANF, buf);
 };

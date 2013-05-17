@@ -18,6 +18,6 @@
 #include "debug.h"
 
 #define CHAN_LEN 50
-#define NICK_LEN 32
+#define NICK_LEN 33
 #define MAX_LINE 510
 #define MAX_LINE_CRLF 512

@@ -32,10 +32,27 @@ struct user {
   struct user* next;
 };
 
+
+/** @summary Allocates a new struct user based on the input.
+ * Should be used internally only.
+ * @param raw The raw input, this can be from either NAMES,
+ * after which it'll also set the correct permissions. And
+ * it can be the normal :nick!user@host
+ * @return This will always return a newly allocated struct user
+ */
 struct user* new_user(char* raw);
 
+/** @summary This'll free a struct user pointer corrrectly.
+ * Should be used internally only.
+ */
 void free_user(struct user* user);
 
+/** @summary Used to quickly strip just a nickname from :nick!user@host
+ * Should be used internally only.
+ * @param rawline The rawline to actually parse the nick from.
+ * @param buf The buffer which will be used to set the nickname to.
+ * @return 1 in case we got the nickname correctly, 0 otherwise.
+ */
 int get_nickname(char* rawline, char* buf);
 
 #endif //_USER_H
