@@ -1,0 +1,10 @@
+<map id="include/debug.h" name="include/debug.h">
+<area shape="rect" id="node3" href="$defines_8h.html" title="include/defines.h" alt="" coords="129,80,249,107"/>
+<area shape="rect" id="node9" href="$config_8c.html" title="src/config.c" alt="" coords="305,229,396,256"/>
+<area shape="rect" id="node17" href="$debug_8c.html" title="src/debug.c" alt="" coords="388,80,479,107"/>
+<area shape="rect" id="node19" href="$main_8c.html" title="src/main.c" alt="" coords="503,80,585,107"/>
+<area shape="rect" id="node5" href="$channel_8h.html" title="include/channel.h" alt="" coords="191,155,313,181"/>
+<area shape="rect" id="node11" href="$irc__callbacks_8c.html" title="src/irc_callbacks.c" alt="" coords="5,229,136,256"/>
+<area shape="rect" id="node14" href="$user_8c.html" title="src/user.c" alt="" coords="87,155,167,181"/>
+<area shape="rect" id="node7" href="$channel_8c.html" title="src/channel.c" alt="" coords="181,229,280,256"/>
+</map>

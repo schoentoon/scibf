@@ -1,0 +1,6 @@
+<map id="config" name="config">
+<area shape="rect" id="node2" href="$structserver.html" title="server" alt="" coords="19,277,77,304"/>
+<area shape="rect" id="node5" href="$structconnection.html" title="connection" alt="" coords="5,187,91,213"/>
+<area shape="rect" id="node7" href="$structchannel.html" title="channel" alt="" coords="15,96,81,123"/>
+<area shape="rect" id="node10" href="$structuser.html" title="user" alt="" coords="25,5,71,32"/>
+</map>

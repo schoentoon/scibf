@@ -1,0 +1,7 @@
+<map id="include/config.h" name="include/config.h">
+<area shape="rect" id="node3" href="$channel_8h.html" title="include/channel.h" alt="" coords="109,80,232,107"/>
+<area shape="rect" id="node7" href="$config_8c.html" title="src/config.c" alt="" coords="5,155,96,181"/>
+<area shape="rect" id="node9" href="$irc__callbacks_8c.html" title="src/irc_callbacks.c" alt="" coords="245,155,376,181"/>
+<area shape="rect" id="node13" href="$main_8c.html" title="src/main.c" alt="" coords="307,80,389,107"/>
+<area shape="rect" id="node5" href="$channel_8c.html" title="src/channel.c" alt="" coords="121,155,220,181"/>
+</map>
