@@ -10,7 +10,7 @@ DEPS   := build/main.o build/debug.o build/config.o build/irc_callbacks.o build/
 all: build $(DEPS) bin/$(BINARY)
 
 build:
-	-mkdir -p build/push bin
+	-mkdir -p build bin
 
 build/main.o: src/main.c
 	$(CC) $(CFLAGS) $(INC) -c -o build/main.o src/main.c
